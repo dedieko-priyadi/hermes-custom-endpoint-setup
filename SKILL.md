@@ -76,6 +76,30 @@ Semua idempotent — re-run aman. **JANGAN hand-edit config.yaml** — selalu `h
 
 **Config di-reload otomatis**: CLI baca `config.yaml` fresh di SETIAP proses baru — `hermes chat` baru = provider baru. Tidak ada cache persisten di CLI. (Satu-satunya yang perlu restart adalah **gateway** yang sedang berjalan: `hermes gateway restart` — lihat bawah.)
 
+**Force re-run provider setup (wizard interaktif)** — kalau user salah pilih provider via Desktop, atau mau ulangi proses setting provider di CLI dari awal:
+
+```bash
+# Wizard interaktif khusus provider + model (pilih dari daftar, isi key)
+hermes setup model
+
+# Alternatif: picker provider/model interaktif
+hermes model
+
+# Reset cache katalog model, fetch ulang daftar model live dari provider
+hermes model --refresh
+
+# Reset config ke default dulu (kalau mau benar-benar bersih), lalu setup ulang
+hermes setup --reset
+hermes setup model
+```
+
+**Alur rekonfigurasi penuh (deterministic)**:
+1. `hermes setup --reset` — reset config ke default (optional, kalau config rusak/terkontaminasi)
+2. `hermes setup model` — wizard pilih provider + model (interaktif, isi API key)
+3. `hermes config get model.provider` — verifikasi hasil
+4. `hermes chat -q "Reply with exactly: CONNECTED"` — self-test
+5. `hermes gateway restart` — kalau gateway berjalan, restart agar baca config baru
+
 ```bash
 # config check
 hermes config get model.provider   # → custom
@@ -118,6 +142,7 @@ Desktop baca config yang sama — sudah connect, tanpa setting tambahan.
 | 401 | key salah/expired | `hermes config set model.api_key` |
 | 404 model not found | nama model salah | `curl $BASE_URL/models`; fix `model.default` |
 | Desktop pakai provider default | `model.provider` ≠ custom | re-run script |
+| **CLI tidak sesuai pilihan Desktop** | Desktop & CLI baca config sama, tapi user pilih provider berbeda di tiap surface | `hermes setup model` — wizard ulang pilih provider, lalu verifikasi `hermes config get model.provider` |
 | **Gateway/Telegram masih pakai provider lama** | gateway proses berjalan baca config lama | `hermes gateway restart` (dari shell terpisah) |
 
 **Ringkasan reload**: CLI & Desktop = auto-reload tiap proses baru. Hanya **gateway** (layanan berjalan: Telegram/WhatsApp/Discord) yang perlu restart manual: `hermes gateway restart`.

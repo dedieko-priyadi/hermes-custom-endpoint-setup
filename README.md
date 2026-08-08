@@ -168,7 +168,20 @@ hermes desktop    # alias: hermes gui
 | 401 Unauthorized | wrong/expired API key | `hermes config set model.api_key <KEY>` |
 | 404 model not found | model name doesn't exist on endpoint | list models: `curl $BASE_URL/models`; fix `model.default` |
 | Desktop shows default provider | `model.provider` not `custom` | re-run script (step 1) |
+| **CLI doesn't match Desktop selection** | user picked a different provider in Desktop vs CLI (same config file) | `hermes setup model` — re-run the provider wizard in CLI, then verify `hermes config get model.provider` |
 | `hermes desktop` won't start | desktop deps missing | `hermes doctor` |
+| **Gateway still uses old provider** | running gateway process cached old config | `hermes gateway restart` (from a separate shell) |
+
+**Force re-run the provider setup wizard (interactive):**
+
+```bash
+hermes setup model        # wizard: pick provider + model + API key
+hermes model              # alternative interactive picker
+hermes model --refresh    # wipe model cache, re-fetch live /v1/models
+hermes setup --reset      # reset config to defaults (clean slate)
+```
+
+**Reload summary**: CLI & Desktop auto-reload config on every new process. Only a **running gateway** (Telegram/WhatsApp/Discord) needs a manual restart: `hermes gateway restart`.
 
 ---
 
