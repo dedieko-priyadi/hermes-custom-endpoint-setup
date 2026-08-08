@@ -74,11 +74,19 @@ Semua idempotent — re-run aman. **JANGAN hand-edit config.yaml** — selalu `h
 
 ### Step 3 — Verify (wajib, bukti bukan klaim)
 
+**Config di-reload otomatis**: CLI baca `config.yaml` fresh di SETIAP proses baru — `hermes chat` baru = provider baru. Tidak ada cache persisten di CLI. (Satu-satunya yang perlu restart adalah **gateway** yang sedang berjalan: `hermes gateway restart` — lihat bawah.)
+
 ```bash
 # config check
 hermes config get model.provider   # → custom
 hermes config get model.base_url  # → URL endpoint
 hermes config get model.default   # → model
+
+# validasi config (deteksi opsi outdated/missing)
+hermes config check
+
+# refresh katalog model/provider (setelah tambah custom_providers)
+hermes model --refresh
 
 # live endpoint test (real API call)
 curl -s "$BASE_URL/chat/completions" \
@@ -110,6 +118,9 @@ Desktop baca config yang sama — sudah connect, tanpa setting tambahan.
 | 401 | key salah/expired | `hermes config set model.api_key` |
 | 404 model not found | nama model salah | `curl $BASE_URL/models`; fix `model.default` |
 | Desktop pakai provider default | `model.provider` ≠ custom | re-run script |
+| **Gateway/Telegram masih pakai provider lama** | gateway proses berjalan baca config lama | `hermes gateway restart` (dari shell terpisah) |
+
+**Ringkasan reload**: CLI & Desktop = auto-reload tiap proses baru. Hanya **gateway** (layanan berjalan: Telegram/WhatsApp/Discord) yang perlu restart manual: `hermes gateway restart`.
 
 ## Referensi Repo
 
