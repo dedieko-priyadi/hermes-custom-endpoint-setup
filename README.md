@@ -26,10 +26,12 @@ The setup is done with the official `hermes config set` commands (never hand-edi
 
 ## Prerequisites
 
-- Linux / macOS / Windows (WSL works)
-- `curl` available
+- **Linux / macOS / WSL**: `curl`, bash
+- **Windows**: PowerShell 5.1+ (built-in)
 - A custom endpoint that speaks **OpenAI-compatible Chat Completions** (`POST {base_url}/chat/completions`)
 - An API key for that endpoint (or none, if the endpoint is open)
+
+> **Windows + WSL**: if your friend prefers WSL, use the bash scripts — identical behavior.
 
 ---
 
@@ -37,13 +39,23 @@ The setup is done with the official `hermes config set` commands (never hand-edi
 
 ### 0. Install Hermes (if not installed)
 
+**Linux / macOS / WSL:**
 ```bash
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 # verify
 hermes --version
 ```
 
+**Windows (PowerShell):**
+```powershell
+irm https://hermes-agent.nousresearch.com/install.ps1 | iex
+# verify (reopen terminal first if hermes not found)
+hermes --version
+```
+
 ### 1. Run the setup script
+
+**Linux / macOS / WSL (bash):**
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/dedieko-priyadi/hermes-custom-endpoint-setup/main/setup_custom_endpoint.sh)" \
@@ -53,17 +65,21 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/dedieko-priyadi/hermes-c
   --name "my-gateway"
 ```
 
-Or clone the repo and run locally:
+**Windows (PowerShell):**
 
-```bash
-git clone https://github.com/dedieko-priyadi/hermes-custom-endpoint-setup
-cd hermes-custom-endpoint-setup
-./setup_custom_endpoint.sh \
-  --base-url "https://your-gateway.example.com/v1" \
-  --api-key "sk-your-key" \
-  --model "your/model-name" \
-  --name "my-gateway"
+```powershell
+# download script
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dedieko-priyadi/hermes-custom-endpoint-setup/main/setup_custom_endpoint.ps1" -OutFile setup_custom_endpoint.ps1
+
+# run (bypass execution policy for this script)
+powershell -ExecutionPolicy Bypass -File .\setup_custom_endpoint.ps1 `
+  -BaseUrl "https://your-gateway.example.com/v1" `
+  -ApiKey "sk-your-key" `
+  -Model "your/model-name" `
+  -Name "my-gateway"
 ```
+
+> **Windows note**: If PowerShell blocks the script, run `Set-ExecutionPolicy -Scope Process Bypass` first, or right-click the file → "Run with PowerShell".
 
 ### 2. What the script does (deterministic, idempotent)
 
@@ -85,6 +101,8 @@ All steps are idempotent — re-running is safe.
 
 ### 3. Verify (deterministic)
 
+**All platforms:**
+
 ```bash
 # 1. Config check
 hermes config get model.provider        # → custom
@@ -101,6 +119,23 @@ curl -s $BASE_URL/chat/completions \
 # 3. Hermes self-test (this is the REAL proof — CLI itself talks to the endpoint)
 hermes chat -q "Reply with exactly: CONNECTED"
 # expect output: CONNECTED
+```
+
+**Windows PowerShell** (steps 2 & 3 — Invoke-RestMethod + same hermes command):
+```powershell
+Invoke-RestMethod -Uri "$BASE_URL/chat/completions" -Method Post `
+  -Headers @{ Authorization = "Bearer $API_KEY" } -ContentType "application/json" `
+  -Body (@{ model = "$MODEL"; messages = @(@{ role = "user"; content = "ping" }); max_tokens = 5 } | ConvertTo-Json -Depth 5)
+hermes chat -q "Reply with exactly: CONNECTED"
+```
+
+Or run the bundled verification scripts:
+```bash
+# Linux/macOS/WSL
+./verify_custom_endpoint.sh
+
+# Windows
+powershell -ExecutionPolicy Bypass -File .\verify_custom_endpoint.ps1
 ```
 
 ### 4. Launch Desktop
@@ -141,9 +176,11 @@ hermes desktop    # alias: hermes gui
 
 ```
 hermes-custom-endpoint-setup/
-├── README.md                        ← this guide
-├── setup_custom_endpoint.sh         ← deterministic setup script
-└── verify_custom_endpoint.sh        ← deterministic verification script
+├── README.md                        ← this guide (Linux + Windows)
+├── setup_custom_endpoint.sh         ← deterministic setup script (bash)
+├── verify_custom_endpoint.sh        ← deterministic verification script (bash)
+├── setup_custom_endpoint.ps1        ← deterministic setup script (Windows PowerShell)
+└── verify_custom_endpoint.ps1       ← deterministic verification script (Windows PowerShell)
 ```
 
 ## Maintainer
