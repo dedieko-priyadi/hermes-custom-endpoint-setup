@@ -177,11 +177,16 @@ hermes desktop    # alias: hermes gui
 ```
 hermes-custom-endpoint-setup/
 ├── README.md                        ← this guide (Linux + Windows)
+├── SKILL.md                         ← Hermes skill — friend's CLI can load this directly
 ├── setup_custom_endpoint.sh         ← deterministic setup script (bash)
 ├── verify_custom_endpoint.sh        ← deterministic verification script (bash)
 ├── setup_custom_endpoint.ps1        ← deterministic setup script (Windows PowerShell)
 └── verify_custom_endpoint.ps1       ← deterministic verification script (Windows PowerShell)
 ```
+
+## For your Hermes CLI (friend)
+
+Tell your Hermes: **"Read https://github.com/dedieko-priyadi/hermes-custom-endpoint-setup — load SKILL.md and follow it."** The skill contains the full deterministic flow (install → setup → verify → desktop).
 
 ## Maintainer
 
