@@ -8,6 +8,23 @@ This guide is **replicable by both humans and machines**. A friend can simply as
 
 ---
 
+
+---
+
+## Current Verified Status
+
+- **Last verified:** 2026-09-20 (repository, registry, and Git parity read back).
+- **Latest completed checkpoint:** project context established — `AGENTS.md` created from the
+  Registry row, live Git state, and this README's own prose (quoted, not paraphrased).
+- **Registry:** `PRJ-2026-0192` — `active`, progress `not_started`, maturity `idea`.
+- **Verification:** `artifact_chain_validator.py` — registry PRESENT, git PRESENT (HEAD == origin), trello MISSING, drive MISSING, obsidian MISSING.
+- **Open gaps:** trello, drive, obsidian — not present for this project. This is recorded, not worked around.
+- **Rollback:** Git revert to the previous commit.
+- **Status maintenance contract:** update this section only at a meaningful verified checkpoint,
+  before the final project commit.
+
+---
+
 ## How it works (1 minute mental model)
 
 Hermes uses a single shared configuration file for ALL surfaces (CLI, Desktop, Gateway, Dashboard):
